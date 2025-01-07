@@ -41,6 +41,7 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
+        "@azure/storage-blob": "^12.26.0",
         "@mattermost/client": "^10.1.0",
         "@sentry/node": "^8.40.0",
         "axios": "^1.7.7",

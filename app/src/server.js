@@ -52,6 +52,7 @@ const { Server } = require('socket.io');
 const http = require('http');
 const https = require('https');
 const compression = require('compression');
+const { BlobServiceClient } = require("@azure/storage-blob");
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -77,6 +78,10 @@ const port = process.env.PORT || 3000; // must be the same to client.js signalin
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
 const authHost = new Host(); // Authenticated IP by Login
+
+//AzureConn
+const connectionString = "DefaultEndpointsProtocol=https;AccountName=tobstorage;AccountKey=uDHWnkucu+QXHxVb1+HsdjKu9aNobKloV1sLU+jObCiIcuTLFMwTNCzLuXns6vRdO1vvxzPyg0/hE9wrBC622Q==;EndpointSuffix=core.windows.net";
+
 
 let server;
 
@@ -712,6 +717,22 @@ app.post([`${apiBasePath}/token`], (req, res) => {
         body: req.body,
         token: token,
     });
+});
+
+app.post([`${apiBasePath}/uploadToAzure`], async (req, res) => {
+    const { dataURL, fileName } = req.body;
+    try {
+        const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+        const containerClient = blobServiceClient.getContainerClient("tobclaimreport");
+        var matches = dataURL.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        const snapshotBuffer = Buffer.from(matches[2], 'base64');
+        const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+        //await blockBlobClient.uploadData(snapshotBuffer);
+        console.log(`Uploaded: ${fileName}`);
+    } catch (error) {
+        console.error("Azure upload failed:", error);
+        res.status(500).send('Upload failed');
+    }
 });
 
 // request meetings list

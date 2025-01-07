@@ -4320,6 +4320,21 @@ function takeSnapshot(video) {
     context.drawImage(video, 0, 0, width, height);
     dataURL = canvas.toDataURL('image/png'); // or image/jpeg
     // console.log(dataURL);
+
+    try {
+        const response = fetch('/api/v1/uploadToAzure', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ dataURL, fileName: 'SNAPSHOT.png' })
+        });
+        const result = response.text();
+        console.log('Upload result:', result);
+    } catch (error) {
+        console.error('Error uploading to Azure:', error);
+    }
+
     saveDataToFile(dataURL, getDataTimeString() + '-SNAPSHOT.png');
 }
 
